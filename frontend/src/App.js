@@ -81,7 +81,7 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1 className="header">ECE 461 Group 19 - Trustworthy Module Registry - #4</h1>
+      <h1 className="header">ECE 461 Group 19 - Trustworthy Module Registry - #5</h1>
       <div className="search-container">
         <input
           type="text"
