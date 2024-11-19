@@ -15,19 +15,20 @@ frontend:
     cache:
         paths:
             - 'frontend/node_modules/**/*'
-backend:
     deploy:
         commands:
+            # Deploy the frontend
+            - echo "Frontend deployment completed. Starting backend deployment..."
             # Write PEM key to a temporary file
             - 'echo "$EC2_PEM_KEY" > ec2-key.pem'
             - 'chmod 600 ec2-key.pem'
-            # SCP backend files to the EC2 instance
+            # Copy backend files to EC2
             - 'scp -i ec2-key.pem -r backend/* ec2-user@$EC2_PUBLIC_IP:/home/ec2-user/backend/'
             # SSH into EC2 to set up and restart the backend
             - 'ssh -i ec2-key.pem ec2-user@$EC2_PUBLIC_IP << EOF
                 cd /home/ec2-user/backend/
                 npm install
-                node index.js &
+                pm2 restart index.js || pm2 start index.js
               EOF'
-            # Clean up PEM file
+            # Remove the temporary PEM file
             - 'rm -f ec2-key.pem'
