@@ -1,0 +1,35 @@
+version: 1
+applications:
+  - backend:
+      phases:
+        preBuild:
+          commands:
+            - 'cd backend'
+            - 'npm install' # Install backend dependencies
+        build:
+          commands:
+            - 'tar -czvf backend.tar.gz *' # Package backend files into a tar.gz file
+      artifacts:
+        baseDirectory: backend
+        files:
+          - 'backend.tar.gz'
+      deploy:
+        commands:
+          # (Optional) Upload backend archive to S3 for EC2 use
+          - 'aws s3 cp backend.tar.gz s3://your-backend-s3-bucket-name --region your-region'
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - 'cd frontend'
+            - 'npm install' # Install frontend dependencies
+        build:
+          commands:
+            - 'npm run build' # Build frontend application
+      artifacts:
+        baseDirectory: frontend/build
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - 'frontend/node_modules/**/*'
