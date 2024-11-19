@@ -21,13 +21,13 @@ backend:
             # Write PEM key to a temporary file
             - 'echo "$EC2_PEM_KEY" > ec2-key.pem'
             - 'chmod 600 ec2-key.pem'
-            # Copy backend files to the EC2 instance
+            # SCP backend files to the EC2 instance
             - 'scp -i ec2-key.pem -r backend/* ec2-user@$EC2_PUBLIC_IP:/home/ec2-user/backend/'
-            # SSH into EC2 and start the server
+            # SSH into EC2 to set up and restart the backend
             - 'ssh -i ec2-key.pem ec2-user@$EC2_PUBLIC_IP << EOF
                 cd /home/ec2-user/backend/
                 npm install
                 node index.js &
               EOF'
-            # Clean up the temporary PEM file
+            # Clean up PEM file
             - 'rm -f ec2-key.pem'
