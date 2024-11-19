@@ -20,7 +20,7 @@ const dbConfig = {
 };
 
 app.use(cors({
-  origin: 'http://461frontend.s3-website-us-east-1.amazonaws.com',  // Frontend URL
+  origin: 'https://main.d2tvs6fkjnwhu6.amplifyapp.com',  // Frontend URL
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
