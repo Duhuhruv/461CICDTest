@@ -16,7 +16,7 @@ applications:
       deploy:
         commands:
           # (Optional) Upload backend archive to S3 for EC2 use
-          - 'aws s3 cp backend.tar.gz s3://your-backend-s3-bucket-name --region your-region'
+          - 'aws s3 cp backend.tar.gz s3://461frontend --region us-east-1'
   - frontend:
       phases:
         preBuild:
