@@ -1,35 +1,33 @@
 version: 1
-applications:
-  - backend:
-      phases:
+frontend:
+    phases:
         preBuild:
-          commands:
-            - 'cd backend'
-            - 'npm install' # Install backend dependencies
+            commands:
+                - 'cd frontend'
+                - 'npm install' # Install frontend dependencies
         build:
-          commands:
-            - 'tar -czvf backend.tar.gz *' # Package backend files into a tar.gz file
-      artifacts:
-        baseDirectory: backend
-        files:
-          - 'backend.tar.gz'
-      deploy:
-        commands:
-          # (Optional) Upload backend archive to S3 for EC2 use
-          - 'aws s3 cp backend.tar.gz s3://461frontend --region us-east-1'
-  - frontend:
-      phases:
-        preBuild:
-          commands:
-            - 'cd frontend'
-            - 'npm install' # Install frontend dependencies
-        build:
-          commands:
-            - 'npm run build' # Build frontend application
-      artifacts:
+            commands:
+                - 'npm run build' # Build the frontend
+    artifacts:
         baseDirectory: frontend/build
         files:
-          - '**/*'
-      cache:
+            - '**/*'
+    cache:
         paths:
-          - 'frontend/node_modules/**/*'
+            - 'frontend/node_modules/**/*'
+backend:
+    deploy:
+        commands:
+            # Write PEM key to a temporary file
+            - 'echo "$EC2_PEM_KEY" > ec2-key.pem'
+            - 'chmod 600 ec2-key.pem'
+            # Copy backend files to the EC2 instance
+            - 'scp -i ec2-key.pem -r backend/* ec2-user@$EC2_PUBLIC_IP:/home/ec2-user/backend/'
+            # SSH into EC2 and start the server
+            - 'ssh -i ec2-key.pem ec2-user@$EC2_PUBLIC_IP << EOF
+                cd /home/ec2-user/backend/
+                npm install
+                node index.js &
+              EOF'
+            # Clean up the temporary PEM file
+            - 'rm -f ec2-key.pem'
