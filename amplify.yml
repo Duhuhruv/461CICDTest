@@ -21,7 +21,7 @@ frontend:
                     pm2 restart index.js || pm2 start index.js
                   EOF
                 # Remove the temporary PEM file
-                - rm -f ec2-key.txt
+               
     artifacts:
         baseDirectory: frontend/build
         files:
