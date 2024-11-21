@@ -36,7 +36,7 @@ const App = () => {
     formData.append('score', moduleScore);
   
     try {
-      const response = await fetch('http://3.94.252.58:3001/upload', {
+      const response = await fetch('https://3.94.252.58:3001/upload', {
         method: 'POST',
         body: formData,
       });
