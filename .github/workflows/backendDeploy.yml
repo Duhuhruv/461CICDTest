@@ -1,48 +1,57 @@
-name: Deploy Docker to EC2
+name: Deploy Backend to EC2
 
 on:
   push:
     branches:
-      - main  # This will trigger on any push to the main branch
+      - main  # Trigger workflow on push to the main branch
 
 jobs:
-  build_and_push:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    # Step 1: Checkout the repository
+    - name: Checkout Code
       uses: actions/checkout@v2
 
-    - name: Configure AWS credentials
+    # Step 2: Configure AWS credentials
+    - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+        aws-region: us-east-1  # Update if your resources are in a different region
 
-  deploy_to_ec2:
-    needs: build_and_push
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Start SSH agent and add EC2 private key
+    # Step 3: Start SSH agent and add EC2 private key
+    - name: Set up SSH Agent
       run: |
         echo "${{ secrets.EC2_PEM_KEY }}" > ec2-key.pem
         chmod 600 ec2-key.pem
         eval "$(ssh-agent -s)"
         ssh-add ec2-key.pem
 
-    - name: SSH into EC2 and restart Docker
+    # Step 4: Deploy backend folder to EC2
+    - name: Deploy Backend to EC2
       run: |
-        npm run build'
-        echo "Frontend build completed. Starting backend deployment..."
-        printf "%b" "$EC2_PEM_KEY" > ec2-key.pem
-        chmod 600 ec2-key.pem
-        scp  -o StrictHostKeyChecking=no -i ec2-key.pem -r ../backend/* ec2-user@$EC2_PUBLIC_IP:/home/ec2-user/backend/
+        # Define variables
+        BACKEND_FOLDER="backend"
+        TARGET_DIR="/home/ec2-user/backend2"
+        REMOTE_USER="ec2-user"
+        REMOTE_HOST="${{ secrets.EC2_PUBLIC_IP }}"
 
-        ssh -o StrictHostKeyChecking=no -i ec2-key.pem ec2-user@ec2-3-94-252-58.compute-1.amazonaws.com << 'EOF'
+        # Copy the backend folder to EC2
+        scp -o StrictHostKeyChecking=no -r $BACKEND_FOLDER/* $REMOTE_USER@$REMOTE_HOST:$TARGET_DIR
+
+    # Step 5: Start the backend on EC2
+    - name: Start Backend on EC2
+      run: |
+        REMOTE_USER="ec2-user"
+        REMOTE_HOST="${{ secrets.EC2_PUBLIC_IP }}"
+
+        ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
+          # Navigate to the deployed backend directory
+          cd /home/ec2-user/backend2
           
-          cd /home/ec2-user/backend/
+          # Start or restart the backend server
           pm2 restart index.js || pm2 start index.js
-
         EOF
