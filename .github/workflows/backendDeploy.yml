@@ -33,7 +33,7 @@ jobs:
     # Step 4: Deploy backend folder to EC2
     - name: Deploy Backend to EC2
       run: |
-        # Define variables
+        # Define variable
         BACKEND_FOLDER="backend"
         TARGET_DIR="/home/ec2-user/backend2"
         REMOTE_USER="ec2-user"
