@@ -40,7 +40,7 @@ jobs:
         REMOTE_HOST="${{ secrets.EC2_PUBLIC_IP }}"
 
         # Copy the backend folder to EC2
-        scp -o StrictHostKeyChecking=no -r $BACKEND_FOLDER/* $REMOTE_USER@$REMOTE_HOST:$TARGET_DIR
+        scp -i StrictHostKeyChecking=no -r $BACKEND_FOLDER/* $REMOTE_USER@$REMOTE_HOST:$TARGET_DIR
 
     # Step 5: Start the backend on EC2
     - name: Start Backend on EC2
@@ -48,7 +48,7 @@ jobs:
         REMOTE_USER="ec2-user"
         REMOTE_HOST="${{ secrets.EC2_PUBLIC_IP }}"
 
-        ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
+        ssh -i StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
           # Navigate to the deployed backend directory
           cd /home/ec2-user/backend2
           
